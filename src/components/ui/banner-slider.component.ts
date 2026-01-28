@@ -1,11 +1,50 @@
-
 import { Component, ChangeDetectionStrategy, inject, signal, onInit, OnDestroy } from '@angular/core';
 import { CourseService } from '../../services/course.service';
 import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-banner-slider',
-  templateUrl: './banner-slider.component.html',
+  template: `
+<div class="relative w-full aspect-[2/1] lg:aspect-[3/1] rounded-2xl overflow-hidden shadow-2xl" (mouseenter)="stopSlider()" (mouseleave)="startSlider()">
+  @for(banner of banners(); track banner.id; let i = $index) {
+    <div 
+      class="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out"
+      [class.opacity-100]="currentIndex() === i"
+      [class.opacity-0]="currentIndex() !== i"
+      >
+      <img [ngSrc]="banner.imageUrl" [alt]="banner.title" class="w-full h-full object-cover" fill priority />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 p-8 md:p-12 text-white">
+        <h2 class="text-3xl md:text-5xl font-extrabold drop-shadow-lg">{{ banner.title }}</h2>
+        <p class="mt-2 md:mt-4 max-w-lg text-lg md:text-xl drop-shadow-md">{{ banner.subtitle }}</p>
+        <button class="mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg transition-transform transform hover:scale-105">
+          {{ banner.ctaText }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Navigation Arrows -->
+  <button (click)="previous()" class="absolute top-1/2 left-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-3 rounded-full text-white transition">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+  </button>
+  <button (click)="next()" class="absolute top-1/2 right-4 -translate-y-1/2 bg-black/30 hover:bg-black/50 p-3 rounded-full text-white transition">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+  </button>
+  
+  <!-- Dot indicators -->
+  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+    @for(banner of banners(); track banner.id; let i = $index) {
+      <button 
+        (click)="goToIndex(i)"
+        class="w-3 h-3 rounded-full transition"
+        [class.bg-white]="currentIndex() === i"
+        [class.bg-white/50]="currentIndex() !== i">
+      </button>
+    }
+  </div>
+</div>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgOptimizedImage],
 })
